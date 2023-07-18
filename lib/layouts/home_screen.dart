@@ -4,6 +4,8 @@ import 'package:tasks_app/modules/archived_tasks.dart';
 import 'package:tasks_app/modules/done_tasks.dart';
 import 'package:tasks_app/modules/tasks_screen.dart';
 
+import '../modules/sheet_view.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -25,18 +27,40 @@ class _HomeScreenState extends State<HomeScreen> {
     createDB();
   }
 
+  var scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isSheetOpen = false;
   int currentScreen = 0;
   IconData icon = Icons.edit;
   Database? database;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
         title: Text(title[currentScreen]),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: Icon(icon),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 10.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            //insertIntoDB();
+            if (isSheetOpen) {
+              Navigator.pop(context);
+              setState(() {
+                icon = Icons.edit;
+              });
+              isSheetOpen = !isSheetOpen;
+            } else {
+              scaffoldKey.currentState
+                  ?.showBottomSheet((context) => const SheetView());
+              setState(() {
+                icon = Icons.add;
+              });
+              isSheetOpen = !isSheetOpen;
+            }
+          },
+          child: Icon(icon),
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const [
@@ -81,5 +105,22 @@ class _HomeScreenState extends State<HomeScreen> {
         print("database opened");
       },
     );
+  }
+
+  void insertIntoDB() {
+    database!.transaction((txn) {
+      txn
+          .rawInsert(
+              'INSERT INTO Tasks( titleTask, dateTask , timeTask , statusTask ) '
+              'VALUES ("Task1", "18/7", "4:05 PM" , "now")')
+          .then((value) {
+        // ignore: avoid_print
+        print("$value  row inserted");
+      }).catchError((onError) {
+        // ignore: avoid_print
+        print("error when insert this row $onError");
+      });
+      return Future(() => null);
+    });
   }
 }
