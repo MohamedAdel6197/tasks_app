@@ -1,3 +1,4 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
@@ -250,7 +251,11 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
       ),
-      body: screens[currentScreen],
+      body: ConditionalBuilder(
+        condition: tasksTb.isNotEmpty,
+        builder: (context) => screens[currentScreen],
+        fallback: (context) => const CircularProgressIndicator(),
+      ),
     );
   }
 
