@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tasks_app/modules/archived_tasks.dart';
 import 'package:tasks_app/modules/done_tasks.dart';
 import 'package:tasks_app/modules/tasks_screen.dart';
-
-import '../modules/sheet_view.dart';
+import 'package:tasks_app/shared/constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +21,12 @@ class _HomeScreenState extends State<HomeScreen> {
     const ArchivedTasks()
   ];
 
+  var titleController = TextEditingController();
+  var timeController = TextEditingController();
+  var dateController = TextEditingController();
+
+  var formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -30,8 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
   var scaffoldKey = GlobalKey<ScaffoldState>();
   bool isSheetOpen = false;
   int currentScreen = 0;
-  IconData icon = Icons.edit;
+  IconData icon = Icons.add;
   Database? database;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,15 +54,180 @@ class _HomeScreenState extends State<HomeScreen> {
             if (isSheetOpen) {
               Navigator.pop(context);
               setState(() {
-                icon = Icons.edit;
+                icon = Icons.add;
               });
               isSheetOpen = !isSheetOpen;
             } else {
               scaffoldKey.currentState
-                  ?.showBottomSheet((context) => const SheetView());
+                  ?.showBottomSheet((context) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                      child: Container(
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 232, 232, 236),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.0),
+                              topRight: Radius.circular(15.0),
+                            )),
+                        // ignore: prefer_const_constructors
+                        child: Form(
+                          key: formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            // ignore: prefer_const_literals_to_create_immutables
+                            children: [
+                              const SizedBox(
+                                height: 40.0,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0),
+                                child: TextFormField(
+                                  controller: titleController,
+                                  decoration: const InputDecoration(
+                                    labelText: "Task Title",
+                                    prefixIcon: Icon(Icons.title),
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (value) {
+                                    if (value == "") {
+                                      return "task title must not be empty";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                  keyboardType: TextInputType.text,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0),
+                                child: TextFormField(
+                                  controller: dateController,
+                                  decoration: const InputDecoration(
+                                    labelText: "Task Date",
+                                    prefixIcon:
+                                        Icon(Icons.calendar_month_outlined),
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (value) {
+                                    if (value == "") {
+                                      return "task Date must not be empty";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                  onTap: () {
+                                    dateController.text = "";
+                                    showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate:
+                                                DateTime.parse("2022-12-30"),
+                                            lastDate:
+                                                DateTime.parse("2050-12-30"))
+                                        .then((value) {
+                                      dateController.text =
+                                          DateFormat.yMMMMd().format(value!);
+                                    });
+                                  },
+                                  keyboardType: TextInputType.none,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 15.0),
+                                child: TextFormField(
+                                  controller: timeController,
+                                  decoration: const InputDecoration(
+                                    labelText: "Task Time",
+                                    prefixIcon: Icon(Icons.timelapse_outlined),
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  keyboardType: TextInputType.none,
+                                  validator: (value) {
+                                    if (value == "") {
+                                      return "task time must not be empty";
+                                    } else {
+                                      return null;
+                                    }
+                                  },
+                                  onTap: () {
+                                    showTimePicker(
+                                            context: context,
+                                            initialTime: TimeOfDay.now())
+                                        .then((value) {
+                                      timeController.text =
+                                          value!.format(context).toString();
+                                    }).catchError((onError) {
+                                      // ignore: avoid_print
+                                      print(onError);
+                                    });
+                                  },
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 15.0,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0),
+                                child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        color: Colors.blue,
+                                        borderRadius:
+                                            BorderRadius.circular(5.0)),
+                                    child: TextButton(
+                                      onPressed: () {
+                                        if (formKey.currentState!.validate()) {
+                                          insertIntoDB(
+                                                  title: titleController.text,
+                                                  date: dateController.text,
+                                                  time: timeController.text)
+                                              .then((value) {})
+                                              .catchError((onError) {
+                                            // ignore: avoid_print
+                                            print("error $onError");
+                                          });
+                                          Navigator.pop(context);
+                                        }
+                                      },
+                                      child: const Text(
+                                        "Add Task",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 32.0),
+                                      ),
+                                    )),
+                              ),
+                              const SizedBox(
+                                height: 20.0,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  })
+                  .closed
+                  .then((value) {
+                    setState(() {
+                      icon = Icons.add;
+                    });
+                    isSheetOpen = !isSheetOpen;
+                  });
               setState(() {
-                icon = Icons.add;
+                icon = Icons.arrow_drop_down_outlined;
               });
+
               isSheetOpen = !isSheetOpen;
             }
           },
@@ -100,19 +272,27 @@ class _HomeScreenState extends State<HomeScreen> {
           print("can\'t create table $onError");
         });
       },
-      onOpen: (db) {
+      onOpen: (database) {
+        getDataFromDB(database).then((value) {
+          setState(() {
+            tasksTb = value;
+          });
+        });
         // ignore: avoid_print
         print("database opened");
       },
     );
   }
 
-  void insertIntoDB() {
-    database!.transaction((txn) {
+  Future insertIntoDB(
+      {required String title,
+      required String date,
+      required String time}) async {
+    return await database?.transaction((txn) {
       txn
           .rawInsert(
               'INSERT INTO Tasks( titleTask, dateTask , timeTask , statusTask ) '
-              'VALUES ("Task1", "18/7", "4:05 PM" , "now")')
+              'VALUES ("$title", "$date", "$time" , "now")')
           .then((value) {
         // ignore: avoid_print
         print("$value  row inserted");
@@ -122,5 +302,9 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       return Future(() => null);
     });
+  }
+
+  Future<List<Map>> getDataFromDB(database) async {
+    return await database.rawQuery("SELECT * FROM Tasks");
   }
 }
