@@ -1,3 +1,4 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,7 +19,11 @@ class _DoneTasksState extends State<DoneTasks> {
     return BlocConsumer<AppCubit, AppStates>(
       builder: (context, state) {
         List doneTasks = AppCubit.get(context).donetasksTb;
-        return tasksBuilder(newTasksList: doneTasks);
+        return ConditionalBuilder(
+          condition: doneTasks.isNotEmpty,
+          builder: (context) => tasksBuilder(newTasksList: doneTasks),
+          fallback: (context) => emptyListScreen(),
+        );
       },
       listener: (context, state) {},
     );

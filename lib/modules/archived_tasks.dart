@@ -1,3 +1,4 @@
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,7 +19,11 @@ class _ArchivedTasksState extends State<ArchivedTasks> {
     return BlocConsumer<AppCubit, AppStates>(
       builder: (context, state) {
         List archivedTasks = AppCubit.get(context).archivedtasksTb;
-        return tasksBuilder(newTasksList: archivedTasks);
+        return ConditionalBuilder(
+          condition: archivedTasks.isNotEmpty,
+          builder: (context) => tasksBuilder(newTasksList: archivedTasks),
+          fallback: (context) => emptyListScreen(),
+        );
       },
       listener: (context, state) {},
     );

@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:tasks_app/shared/cubit/cubit.dart';
 import 'package:tasks_app/shared/cubit/states.dart';
 
+import '../shared/components.dart';
+
 // ignore: must_be_immutable
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
@@ -265,8 +267,7 @@ class HomeScreen extends StatelessWidget {
             body: ConditionalBuilder(
               condition: cubit.newtasksTb.isNotEmpty,
               builder: (context) => cubit.screens[cubit.currentScreen],
-              fallback: (context) =>
-                  const Center(child: CircularProgressIndicator()),
+              fallback: (context) => emptyListScreen(),
             ),
           );
         },

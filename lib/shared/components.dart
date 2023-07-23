@@ -109,3 +109,23 @@ Widget tasksBuilder({required List newTasksList}) => ListView.separated(
           ),
         ),
     itemCount: newTasksList.length);
+
+Widget emptyListScreen() => const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.menu,
+            size: 150.0,
+            color: Colors.grey,
+          ),
+          Text(
+            "List is empty , No Tasks Avaiblie",
+            style: TextStyle(
+                fontSize: 22.0,
+                fontWeight: FontWeight.w600,
+                color: Colors.black54),
+          ),
+        ],
+      ),
+    );
