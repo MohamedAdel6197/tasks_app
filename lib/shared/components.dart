@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 Widget taskItemList(Map dataModel) => Padding(
-      padding: EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(10.0),
       child: Row(
         // ignore: prefer_const_literals_to_create_immutables
         children: [
@@ -18,7 +18,7 @@ Widget taskItemList(Map dataModel) => Padding(
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             width: 5.0,
           ),
           Column(
@@ -27,16 +27,16 @@ Widget taskItemList(Map dataModel) => Padding(
             children: [
               Text(
                 "${dataModel['titleTask']}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 24.0,
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.only(top: 8.0, start: 8.0),
+                padding: const EdgeInsetsDirectional.only(top: 8.0, start: 8.0),
                 child: Text(
                   "${dataModel['dateTask']}",
-                  style: TextStyle(fontSize: 16.0),
+                  style: const TextStyle(fontSize: 16.0),
                 ),
               )
             ],
